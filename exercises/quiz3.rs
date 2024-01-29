@@ -18,16 +18,60 @@
 
 // I AM NOT DONE
 
+use std::fmt::Display;
+
 pub struct ReportCard {
     pub grade: f32,
     pub student_name: String,
     pub student_age: u8,
+    pub grade_str: AlphabeticalGrade,
 }
 
 impl ReportCard {
     pub fn print(&self) -> String {
-        format!("{} ({}) - achieved a grade of {}",
-            &self.student_name, &self.student_age, &self.grade)
+        format!(
+            "{} ({}) - achieved a grade of {}",
+            &self.student_name, &self.student_age, &self.grade
+        )
+    }
+}
+
+impl Display for ReportCard {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!(
+            "{} ({}) - achieved a grade of {}",
+            self.student_name, self.student_age, self.grade_str.grade_str
+        ))
+    }
+}
+
+pub struct AlphabeticalGrade {
+    pub start: f32,
+    pub end: f32,
+    pub grade_str: String,
+}
+
+impl From<f32> for AlphabeticalGrade {
+    fn from(value: f32) -> Self {
+        let alphabetical_grade_list: Vec<AlphabeticalGrade> = vec![
+            AlphabeticalGrade {
+                start: 1_f32,
+                end: 2.5_f32,
+                grade_str: "A+".to_string(),
+            },
+            AlphabeticalGrade {
+                start: 2.5_f32,
+                end: 5_f32,
+                grade_str: "A".to_string(),
+            },
+            // TODO other
+        ];
+        for vg in alphabetical_grade_list {
+            if value > vg.start && value <= vg.end {
+                return vg;
+            }
+        }
+        panic!("请检查成绩有效性，成绩范围（1.0-5.0）");
     }
 }
 
@@ -39,6 +83,7 @@ mod tests {
     fn generate_numeric_report_card() {
         let report_card = ReportCard {
             grade: 2.1,
+            grade_str: 2.1.into(),
             student_name: "Tom Wriggle".to_string(),
             student_age: 12,
         };
@@ -53,11 +98,12 @@ mod tests {
         // TODO: Make sure to change the grade here after you finish the exercise.
         let report_card = ReportCard {
             grade: 2.1,
+            grade_str: 2.1.into(),
             student_name: "Gary Plotter".to_string(),
             student_age: 11,
         };
         assert_eq!(
-            report_card.print(),
+            format!("{}", report_card),
             "Gary Plotter (11) - achieved a grade of A+"
         );
     }
