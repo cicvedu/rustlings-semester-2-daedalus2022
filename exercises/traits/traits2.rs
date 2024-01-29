@@ -11,10 +11,16 @@
 // I AM NOT DONE
 
 trait AppendBar {
-    fn append_bar(self) -> Self;
+    fn append_bar(&mut self) -> Self;
 }
 
 // TODO: Implement trait `AppendBar` for a vector of strings.
+impl AppendBar for Vec<String> {
+    fn append_bar(&mut self) -> Self {
+        self.push("Bar".into());
+        self.clone()
+    }
+}
 
 #[cfg(test)]
 mod tests {
