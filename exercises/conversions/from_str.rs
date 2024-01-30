@@ -12,7 +12,7 @@
 use std::num::ParseIntError;
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Default)]
 struct Person {
     name: String,
     age: usize,
@@ -31,7 +31,6 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
 
 // Steps:
 // 1. If the length of the provided string is 0, an error should be returned
@@ -52,6 +51,44 @@ enum ParsePersonError {
 impl FromStr for Person {
     type Err = ParsePersonError;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        let mut result = Person::default();
+        
+
+        if s.len() == 0{
+            return Err(ParsePersonError::Empty);
+        }
+
+        if s.contains(','){
+            let p_str:Vec<_>= s.split(",").collect();
+            if p_str.len() != 2{
+                return Err(ParsePersonError::BadLen);
+            }
+
+            let name_opt = p_str.get(0);
+            let age_opt  = p_str.get(1);
+
+            if name_opt.is_none() || age_opt.is_none(){
+                return Err(ParsePersonError::NoName);
+            }
+
+            let age_ok:Result<usize, _> = age_opt.unwrap().parse();
+             
+            if let Err(parse_err) = age_ok{
+                return Err(ParsePersonError::ParseInt(parse_err));
+            }
+
+            let name:String = name_opt.unwrap().clone().into();
+            if name.len() == 0{
+                return Err(ParsePersonError::NoName);
+            }
+
+            result.name = name;
+            result.age = age_ok.unwrap();
+        }else{
+            return Err(ParsePersonError::BadLen);
+        }
+
+        Ok(result)
     }
 }
 
